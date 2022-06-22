@@ -1,6 +1,6 @@
 # CNN-From-Scratch-In-C
 
-This is my ongoing passion project
+This is my on-going passion project
 
 Motivation: during my time as a student, I took a data mining course that covered the basics of machine learning models, but all the work done in the class
 was at a high level. I did a project in PyTorch that was a CNN for the MNIST dataset, but found myself not really understanding it. Most of what I did for the 
