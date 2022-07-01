@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "Matrice.h"
+#include "Image.h"
 
 unsigned char* readTrainingImagesIntoBuffer(){
     FILE *fileptr;
@@ -34,26 +34,6 @@ unsigned char* readTrainingLabelsIntoBuffer(){
     return buffer;
 }
 
-
-//unsigned char* readTrainingLabelsIntoBuffer(){
-
-//}
-
-void readImageToMatrice(unsigned char *buffer, struct Matrix *matrix, int startOfImage){
-    matrix->height = 28;
-    matrix->width = 28;
-    int cur = 0;
-    for(int i = 0; i < matrix->height; i++){
-        for(int j = 0; j < matrix->width; j++){
-            matrix->mat[i][j] = (int) buffer[cur + startOfImage];
-            cur++;
-        }
-    }
-}
-void setLabelOfImageMatrice(unsigned char *labels, struct Matrix *matrix, int curLabel){
-    matrix->label = (unsigned short) labels[curLabel];
-}
-
 int main(){
     //test opening file
     //FILE *images = fopen("/TrainingImages/train-images.idx3-ubyte", "r");
@@ -62,20 +42,20 @@ int main(){
 
     char *buffer = readTrainingImagesIntoBuffer();
     char *labels = readTrainingLabelsIntoBuffer();
-    printf("everything is working");
+    //printf("everything is working");
     unsigned short pixelVal = (unsigned short) buffer[16];
 
     //data start at 16 and 8 respectively, so init them there
     int curImage = 16;
     int curLabel = 8;
-    struct Matrix image;
-    readImageToMatrice(buffer, &image, curImage);
-    printMatrix(&image);
+    struct Image image;
+    readImage(buffer, &image, curImage);
+    printImage(&image);
 
     for(int i = 0; i < 30; i++){
-        readImageToMatrice(buffer, &image, curImage);
-        setLabelOfImageMatrice(labels, &image, curLabel);
-        printMatrix(&image);
+        readImage(buffer, &image, curImage);
+        setLabelOfImage(labels, &image, curLabel);
+        printImage(&image);
         printf("\n");
         curImage += (28*28);
         curLabel += 1;
