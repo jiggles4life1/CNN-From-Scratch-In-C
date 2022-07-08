@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Image.h"
+#include "ImageLoader.h"
 
 unsigned char* readTrainingImagesIntoBuffer(){
     FILE *fileptr;
@@ -34,7 +35,7 @@ unsigned char* readTrainingLabelsIntoBuffer(){
     return buffer;
 }
 
-int main(){
+struct Image *getNImages(int n){
     //test opening file
     //FILE *images = fopen("/TrainingImages/train-images.idx3-ubyte", "r");
 
@@ -45,24 +46,36 @@ int main(){
     //printf("everything is working");
     unsigned short pixelVal = (unsigned short) buffer[16];
 
+    //struct Image *imageArray[n];
+    struct Image *imageArray;
+    imageArray = malloc(sizeof(struct Image) * n);
+
     //data start at 16 and 8 respectively, so init them there
     int curImage = 16;
     int curLabel = 8;
-    struct Image image;
-    readImage(buffer, &image, curImage);
-    printImage(&image);
+    int arrCounter = 0;
+    //struct Image *image = (struct Image*) malloc(sizeof(struct Image));
+    
+    //eadImage(buffer, image, curImage);
+    //imageArray[arrCounter] = image;
+    //arrCounter++;
+    //printImage(&image);
 
-    for(int i = 0; i < 30; i++){
-        readImage(buffer, &image, curImage);
-        setLabelOfImage(labels, &image, curLabel);
-        printImage(&image);
-        printf("\n");
+    for(int i = 0; i < n; i++){
+        //image = malloc(sizeof(struct Image));
+        readImage(buffer, &imageArray[arrCounter], curImage);
+        setLabelOfImage(labels, &imageArray[arrCounter], curLabel);
+        //imageArray[arrCounter] = image;
+        
         curImage += (28*28);
         curLabel += 1;
+        arrCounter++;
 
 
     }
     printf("\n\n DATA LOADED\n\n");
+
+    return imageArray;
 
 
 

@@ -1,5 +1,7 @@
 #include "Image.h"
-#include "stdio.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "Matrix.h"
 
 
 void readImage(unsigned char *buffer, struct Image *image, int startOfImage){
@@ -59,4 +61,19 @@ void printImage(struct Image *image){
     } 
 
     printf("\n");
+}
+
+
+
+struct Matrix *convertImageToMatrix(struct Image *image){
+    struct Matrix *m = malloc(sizeof(struct Matrix));
+    m->height = 28;
+    m->width = 28;
+
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            m->mat[i][j] = (float) image->mat[i][j];
+        }
+    }
+    return m;
 }

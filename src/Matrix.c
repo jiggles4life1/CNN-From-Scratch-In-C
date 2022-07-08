@@ -136,5 +136,32 @@ void initMatrixWithOnes(struct Matrix *m){
 }
 
 
+float sum(struct Matrix *m){
+    float total = 0.0;
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            total += m->mat[i][j];
+        }
+    }
+    return total;
+}
+
+
+struct Matrix *elementWiseMultiplication(struct Matrix *x, struct Matrix *y){
+    if((x->height != y->height) || (x->width != y->width)){
+        return NULL;
+    }
+
+    struct Matrix *m = newMatrix(x->height, x->width);
+    for(int i = 0; i < x->width; i++){
+        for(int j = 0; j < x->height; j++){
+            m->mat[i][j] = (x->mat[i][j] * y->mat[i][j]);
+        }
+    }
+    return m;
+
+}
+
+
 
 
