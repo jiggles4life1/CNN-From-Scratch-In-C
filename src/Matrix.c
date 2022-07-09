@@ -74,8 +74,9 @@ struct Matrix *muliplyMatrices(struct Matrix *m1, struct Matrix *m2){
 }
 
 void initMatrixValuesRandomlyBetweenOneAndOne(struct Matrix *m){
+    static int i = 0;
 
-    srand(time(NULL));
+    srand(time(NULL) + i);
     float x = ((float)rand()/(float)(RAND_MAX)) * 2.0;
     x -= 1;
     for(int i = 0; i < m->height; i++){
@@ -85,6 +86,7 @@ void initMatrixValuesRandomlyBetweenOneAndOne(struct Matrix *m){
                 m->mat[i][j] = x;
         }
     }
+    i++;
 
 
 }
