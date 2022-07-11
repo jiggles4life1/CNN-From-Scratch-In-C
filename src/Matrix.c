@@ -164,6 +164,28 @@ struct Matrix *elementWiseMultiplication(struct Matrix *x, struct Matrix *y){
 
 }
 
+struct Matrix *flattenMatrix(struct Matrix *m){
+    //we flatten it across the width because C access memory using row-major
+    //so the operation will take less memory accesses if we flatten row-major wise
+    int widthOfFlattenedMatrix = m->width * m->height;
+    struct Matrix *n = newMatrix(1, widthOfFlattenedMatrix);
+    int cur = 0;
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            n->mat[0][cur] = m->mat[i][j];
+            cur++;
+            printf("\n %d", cur);
+        }
+    }
+
+
+            printf("\n\n %d", n->height);
+            printf("\n\n %d", n->width);
+
+    return n;
+
+}
+
 
 
 

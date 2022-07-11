@@ -41,6 +41,7 @@ float sum(struct Matrix *m);
 
 struct Matrix *elementWiseMultiplication(struct Matrix *x, struct Matrix *y);
 
+struct Matrix *flattenMatrix(struct Matrix *m);
 
 
 #endif

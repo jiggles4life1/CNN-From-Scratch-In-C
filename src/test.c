@@ -44,4 +44,9 @@ int main()
     n = maxPool(n, 2);
     printMatrix(n);
 
+    printf("\n\n\n\n\n\n N SHOULD BE FLAT \n\n\n\n");
+
+    n = flattenMatrix(n);
+    printMatrix(n);
+
 }
