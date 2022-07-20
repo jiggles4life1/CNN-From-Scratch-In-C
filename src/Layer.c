@@ -1,8 +1,9 @@
 #include "Layer.h"
 #include "Matrix.h"
 #include <stdlib.h>
+#include "ActivationFunctions.h"
 
-struct Layer* newLayer(int numberOfInputs, int numberOfNuerons){
+struct Layer* newLayer(int numberOfInputs, int numberOfNuerons, int isOutputLayer){
     struct Layer *layer = malloc(sizeof(struct Layer));
 
     //set the input pointer to the parameter inputs
@@ -16,6 +17,8 @@ struct Layer* newLayer(int numberOfInputs, int numberOfNuerons){
     layer->biases = newMatrix(1, numberOfNuerons);
     initMatrixWithZeros(layer->biases);
 
+    layer->isOutputLayer = isOutputLayer;
+
     return layer;
 
 }
@@ -26,4 +29,32 @@ void forward(struct Layer *layer, struct Matrix *inputs){
     printMatrix(layer->outputs);
     addVectorToEachRow(layer->outputs, layer->biases);
     printMatrix(layer->outputs);
+}
+
+void activateEachNeuronReLU(struct Layer *layer){
+    for(int i = 0; i < layer->outputs->height; i++){
+        for(int j = 0; j < layer->outputs->width; j++){
+            layer->outputs->mat[i][j] = ReLU(layer->outputs->mat[i][j]);
+        }
+    }
+}
+
+void outputLayerSoftmaxActivation(struct Layer *layer){
+    layer->outputs = subtractByMaxRowWise(layer->outputs);
+    layer->outputs = exponentiateMatrix(layer->outputs);
+    layer->outputs = normalizeMatrixByRow(layer->outputs);
+}
+
+
+
+void callActivationFunction(struct Layer *layer){
+    //If it is the output layer
+    if(layer->isOutputLayer){
+        outputLayerSoftmaxActivation(layer);
+    }
+    //if it's not the output layer use ReLU()
+    else{
+        activateEachNeuronReLU(layer);
+    }
+
 }

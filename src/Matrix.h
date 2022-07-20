@@ -2,7 +2,8 @@
 #define Matrice
 
 struct Matrix{
-    float mat[32][32];
+    //float mat[32][32];
+    float **mat;
     unsigned short height;
     unsigned short width;
     //unsigned short label;
@@ -43,5 +44,17 @@ struct Matrix *elementWiseMultiplication(struct Matrix *x, struct Matrix *y);
 
 struct Matrix *flattenMatrix(struct Matrix *m);
 
+struct Matrix *exponentiateMatrix(struct Matrix *m);
+
+struct Matrix *normalizeMatrixByRow(struct Matrix *m);
+struct Matrix *normalizeMatrix(struct Matrix *m);
+
+struct Matrix *subtractByMaxRowWise(struct Matrix *m);
+
+struct Matrix *concatenateMatricesRowWise(struct Matrix *x, struct Matrix *y, int setCur);
+
+void fillIn(struct Matrix *x, struct Matrix *y, int setCur);
+
+void freeMatrix(struct Matrix *m);
 
 #endif

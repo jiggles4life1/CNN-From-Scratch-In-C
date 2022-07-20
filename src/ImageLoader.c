@@ -81,4 +81,18 @@ struct Image *getNImages(int n){
 
 }
 
+struct Matrix ***convertImageBatchToConLayerFormat(struct Image *images, int batchSize){
+    struct Matrix ***m = malloc(sizeof(struct Matrix*) * batchSize);
+
+    for(int i = 0; i < batchSize; i++){
+        m[i] = malloc(sizeof(struct Matrix*));
+        m[i][0] = convertImageToMatrix(&images[i]);
+        
+    }
+
+    return m;
+    
+
+}
+
 

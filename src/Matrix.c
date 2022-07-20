@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Matrix.h"
+#include "ActivationFunctions.h"
 //The size of mat is the max size the matrix can be
 
 
@@ -113,6 +114,10 @@ struct Matrix* newMatrix(int height, int width){
     struct Matrix *m = malloc(sizeof(struct Matrix));
     m->height = height;
     m->width = width;
+    m->mat = malloc(sizeof(float*) * height);
+    for(int i = 0; i < height; i++){
+        m->mat[i] = malloc(sizeof(float) * width);
+    }
     return m;
 }
 
@@ -174,18 +179,140 @@ struct Matrix *flattenMatrix(struct Matrix *m){
         for(int j = 0; j < m->width; j++){
             n->mat[0][cur] = m->mat[i][j];
             cur++;
-            printf("\n %d", cur);
         }
     }
-
-
-            printf("\n\n %d", n->height);
-            printf("\n\n %d", n->width);
-
     return n;
 
 }
 
 
+struct Matrix *exponentiateMatrix(struct Matrix *m){
+    struct Matrix *newMat = newMatrix(m->height, m->width);
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            newMat->mat[i][j] = exponentiation(m->mat[i][j]);
+        }
+    }
+
+    return newMat;
+}
 
 
+
+struct Matrix *normalizeMatrixByRow(struct Matrix *m){
+    struct Matrix *newMat = newMatrix(m->height, m->width);
+    float normBase;
+    for (int i = 0; i < m->height; i++){
+        normBase = 0;
+        //gets the sum of the row
+        for(int j = 0; j < m->width; j++){
+            normBase += m->mat[i][j];
+        }
+
+        for(int j = 0; j < m->width; j++){
+            newMat->mat[i][j] = m->mat[i][j] / normBase;
+        }
+    }
+    return newMat;
+}
+
+
+struct Matrix *normalizeMatrix(struct Matrix *m){
+    struct Matrix *newMat = newMatrix(m->height, m->width);
+    
+    float normBase = sum(m);
+    for (int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            newMat->mat[i][j] = m->mat[i][j] / normBase;
+        }
+    }
+    return newMat;
+}
+
+//beacuse for softmax we use exponentiation, this protects the values
+//from being > 1, and potentially causing integer overflow issues
+struct Matrix *subtractByMaxRowWise(struct Matrix *m){
+    struct Matrix *newMat = newMatrix(m->height, m->width);
+
+    float curMax;
+    for(int i = 0; i < m->height; i++){
+        curMax = 0;
+        //find the max during 1st iteration
+        for(int j = 0; j < m->width; j++){
+            if (m->mat[i][j] > curMax){
+                curMax = m->mat[i][j];
+            }
+        }
+        //subtract each element during second iteration
+        for(int j = 0; j < m->width; j++){
+            m->mat[i][j] -= curMax;
+            newMat->mat[i][j] = m->mat[i][j];
+        }
+    }
+
+    return newMat;
+
+
+}
+
+
+//Matrices MUST be same height for this function to work
+struct Matrix *concatenateMatricesRowWise(struct Matrix *x, struct Matrix *y, int setCur){
+    //static int cur = 0;
+    if(x->width <= 1){
+        struct Matrix *m = newMatrix(y->height, y->width);
+        for(int i = 0; i < y->height; i++){
+            for(int j = 0; j < y->width; j++){
+                m->mat[i][j] = y->mat[i][j];
+            }
+        }
+        return m;
+    }
+    if (setCur){
+        //cur = 0;
+    }
+    if(x->height != y->height){
+        struct Matrix *nullptr;
+        printf("ERROR: matrices are not same hieight in concatenateMatricesRowWise");
+        return nullptr;
+
+    }
+    int cur = 0;
+    struct Matrix *m = newMatrix(y->height , x->width + y->width);
+    for(int i = 0; i < x->height; i++){
+        for(int j = 0; j < x->width; j++){
+            m->mat[i][cur] = x->mat[i][j];
+            cur++;
+        }
+        for(int j = 0; j < y->width; j++){
+            m->mat[i][cur] = y->mat[i][j];
+            cur++;
+        }
+    }
+    return m;
+}
+
+void fillIn(struct Matrix *x, struct Matrix *y, int setCur){
+    static int cur = 0;
+    if (setCur){
+        cur = 0;
+    }
+
+
+    for(int i = 0; i < y->height; i++){
+        for(int j = 0; j < y->width; j++){
+            x->mat[i][cur] = y->mat[i][j];
+            cur++;
+            printf("\n cur = %d", cur);
+        }
+    }
+}
+
+
+void freeMatrix(struct Matrix *m){
+    for(int i = 0; i < m->height; m++){
+        free(m->mat[i]);
+    }
+    free(m->mat);
+    free(m);
+}

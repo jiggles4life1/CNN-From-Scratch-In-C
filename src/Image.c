@@ -66,9 +66,10 @@ void printImage(struct Image *image){
 
 
 struct Matrix *convertImageToMatrix(struct Image *image){
-    struct Matrix *m = malloc(sizeof(struct Matrix));
-    m->height = 28;
-    m->width = 28;
+    //struct Matrix *m = malloc(sizeof(struct Matrix));
+    //m->height = 28;
+    //m->width = 28;
+    struct Matrix *m = newMatrix(28, 28);
 
     for(int i = 0; i < m->height; i++){
         for(int j = 0; j < m->width; j++){
