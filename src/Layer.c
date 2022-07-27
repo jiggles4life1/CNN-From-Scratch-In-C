@@ -25,9 +25,12 @@ struct Layer* newLayer(int numberOfInputs, int numberOfNuerons, int isOutputLaye
 
 
 void forward(struct Layer *layer, struct Matrix *inputs){
+    printf("\n\n\n\n starting forward \n\n\n\n");
     layer->outputs = muliplyMatrices(inputs, layer->weights);
     printMatrix(layer->outputs);
     addVectorToEachRow(layer->outputs, layer->biases);
+    printMatrix(layer->outputs);
+    callActivationFunction(layer);
     printMatrix(layer->outputs);
 }
 
@@ -40,9 +43,16 @@ void activateEachNeuronReLU(struct Layer *layer){
 }
 
 void outputLayerSoftmaxActivation(struct Layer *layer){
+    printf("\n\n\n\nSTARTING ACTIVATION SOFTMAX\n\n\n\n");
+
+    printMatrix(layer->outputs);
+
     layer->outputs = subtractByMaxRowWise(layer->outputs);
+    printMatrix(layer->outputs);
     layer->outputs = exponentiateMatrix(layer->outputs);
+    printMatrix(layer->outputs);
     layer->outputs = normalizeMatrixByRow(layer->outputs);
+    printMatrix(layer->outputs);
 }
 
 

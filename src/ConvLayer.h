@@ -48,4 +48,6 @@ void flattenOutput(struct ConvLayer *layer);
 
 void poolOutput(struct ConvLayer *layer, int poolSize);
 
+struct Matrix *getConvLayerOutput(struct ConvLayer *layer);
+
 #endif

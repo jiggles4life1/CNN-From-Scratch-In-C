@@ -174,10 +174,11 @@ void flattenOutput(struct ConvLayer *layer){
 
     //image is the current image we are iterating over
     //loop through each image in the batch
+    struct Matrix *finalOutput = newMatrix(1, 1);
     for(int image = 0; image < layer->inputSize; image++){
         //int width = layer->outputSize * layer->output[image][0]->height * layer->output[image][0]->width;
         struct Matrix *flattenedMatrix = newMatrix(1, 1);
-        int c = 0;
+        //int c = 0;
         for(int map = 0; map < layer->outputSize; map++){
             //printMatrix(layer->output[image][map]);
             struct Matrix *flatMap = flattenMatrix(layer->output[image][map]);
@@ -187,11 +188,10 @@ void flattenOutput(struct ConvLayer *layer){
             flattenedMatrix = concatenateMatricesRowWise(flattenedMatrix, flatMap, 0);
             //c += (layer->output[image][map]->height * layer->output[image][map]->width);
         }
-
-
-        layer->output[image][0] = flattenedMatrix;
+        finalOutput = concatenateMatricesColWise(finalOutput, flattenedMatrix);
+        //layer->output[image][0] = flattenedMatrix;
     }
-
+    layer->output[0][0] = finalOutput;
     layer->outputSize = 1;
 }
 
@@ -202,4 +202,8 @@ void poolOutput(struct ConvLayer *layer, int poolSize){
             layer->output[image][map] = maxPool(layer->output[image][map], poolSize);
         }
     }
+}
+
+struct Matrix *getConvLayerOutput(struct ConvLayer *layer){
+    return layer->output[0][0];
 }

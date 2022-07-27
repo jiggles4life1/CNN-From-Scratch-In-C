@@ -1,7 +1,7 @@
 #include <math.h>
 #include "Matrix.h"
 
-float ReLU(float x){
+double ReLU(double x){
     if (x <= 0){
         return 0;
     }
@@ -11,8 +11,17 @@ float ReLU(float x){
 }
 
 
-float exponentiation(float x){
-    return (float) exp((double) x);
+double exponentiation(double x){
+    return (double) exp((double) x);
+}
+
+double naturalLog(double x){
+    return (double) log(x);
+}
+
+
+double loss(struct Matrix *layerOutput, int imageNumber, short label){
+    return -(naturalLog(layerOutput->mat[imageNumber][label]));
 }
 
 //NORMALIZES THE WHOLE MATRIX

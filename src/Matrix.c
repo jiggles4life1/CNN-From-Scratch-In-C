@@ -60,7 +60,7 @@ struct Matrix *muliplyMatrices(struct Matrix *m1, struct Matrix *m2){
 
     for(int i = 0; i < result->height; i++){
         for(int j = 0; j < result->width; j++){
-            float total = 0; 
+            double total = 0; 
             for(int k = 0; k < m1->width; k++){
                 //printf("\n\n %d \n ", m1->width);
                 total += (m1->mat[i][k] * m2->mat[k][j]);
@@ -78,11 +78,11 @@ void initMatrixValuesRandomlyBetweenOneAndOne(struct Matrix *m){
     static int i = 0;
 
     srand(time(NULL) + i);
-    float x = ((float)rand()/(float)(RAND_MAX)) * 2.0;
+    double x = ((double)rand()/(double)(RAND_MAX)) * 2.0;
     x -= 1;
     for(int i = 0; i < m->height; i++){
         for(int j = 0; j < m->width; j++){
-                float x = ((float)rand()/(float)(RAND_MAX)) * 2.0;
+                double x = ((double)rand()/(double)(RAND_MAX)) * 2.0;
                 x -= 1;
                 m->mat[i][j] = x;
         }
@@ -114,9 +114,9 @@ struct Matrix* newMatrix(int height, int width){
     struct Matrix *m = malloc(sizeof(struct Matrix));
     m->height = height;
     m->width = width;
-    m->mat = malloc(sizeof(float*) * height);
+    m->mat = malloc(sizeof(double*) * height);
     for(int i = 0; i < height; i++){
-        m->mat[i] = malloc(sizeof(float) * width);
+        m->mat[i] = malloc(sizeof(double) * width);
     }
     return m;
 }
@@ -143,8 +143,8 @@ void initMatrixWithOnes(struct Matrix *m){
 }
 
 
-float sum(struct Matrix *m){
-    float total = 0.0;
+double sum(struct Matrix *m){
+    double total = 0.0;
     for(int i = 0; i < m->height; i++){
         for(int j = 0; j < m->width; j++){
             total += m->mat[i][j];
@@ -201,7 +201,7 @@ struct Matrix *exponentiateMatrix(struct Matrix *m){
 
 struct Matrix *normalizeMatrixByRow(struct Matrix *m){
     struct Matrix *newMat = newMatrix(m->height, m->width);
-    float normBase;
+    double normBase;
     for (int i = 0; i < m->height; i++){
         normBase = 0;
         //gets the sum of the row
@@ -220,7 +220,7 @@ struct Matrix *normalizeMatrixByRow(struct Matrix *m){
 struct Matrix *normalizeMatrix(struct Matrix *m){
     struct Matrix *newMat = newMatrix(m->height, m->width);
     
-    float normBase = sum(m);
+    double normBase = sum(m);
     for (int i = 0; i < m->height; i++){
         for(int j = 0; j < m->width; j++){
             newMat->mat[i][j] = m->mat[i][j] / normBase;
@@ -234,7 +234,7 @@ struct Matrix *normalizeMatrix(struct Matrix *m){
 struct Matrix *subtractByMaxRowWise(struct Matrix *m){
     struct Matrix *newMat = newMatrix(m->height, m->width);
 
-    float curMax;
+    double curMax;
     for(int i = 0; i < m->height; i++){
         curMax = 0;
         //find the max during 1st iteration
@@ -315,4 +315,50 @@ void freeMatrix(struct Matrix *m){
     }
     free(m->mat);
     free(m);
+}
+
+
+struct Matrix *concatenateMatricesColWise(struct Matrix *x, struct Matrix *y){
+        //static int cur = 0;
+    if(x->width <= 1){
+        struct Matrix *m = newMatrix(y->height, y->width);
+        for(int i = 0; i < y->height; i++){
+            for(int j = 0; j < y->width; j++){
+                m->mat[i][j] = y->mat[i][j];
+            }
+        }
+        return m;
+    }
+    if(x->width != y->width){
+        struct Matrix *nullptr;
+        printf("ERROR: matrices are not same width in concatenateMatricesColWise");
+        return nullptr;
+
+    }
+    int cur = 0;
+    struct Matrix *m = newMatrix(y->height + x->height ,y->width);
+    /*for(int i = 0; i < x->height; i++){
+        for(int j = 0; j < x->width; j++){
+            m->mat[i][cur] = x->mat[i][j];
+            cur++;
+        }
+        for(int j = 0; j < y->width; j++){
+            m->mat[i][cur] = y->mat[i][j];
+            cur++;
+        }
+    }
+    */
+    for(int i = 0; i < x->height; i++){
+        for(int j = 0; j < x->width; j++){
+            m->mat[cur][j] = x->mat[i][j];
+        }
+        cur++;
+    }
+    for(int i = 0; i < y->height; i++){
+        for(int j = 0; j < y->width; j++){
+            m->mat[cur][j] = y->mat[i][j];
+        }
+        cur++;
+    }
+    return m;
 }

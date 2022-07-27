@@ -27,5 +27,7 @@ void forward(struct Layer *layer, struct Matrix *inputs);
 
 void callActivationFunction();
 
+struct Matrix *calculateLoss(struct Layer *layer, struct Matrix *labels);
+
 
 #endif

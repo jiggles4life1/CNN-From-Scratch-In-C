@@ -3,7 +3,7 @@
 
 struct Matrix{
     //float mat[32][32];
-    float **mat;
+    double **mat;
     unsigned short height;
     unsigned short width;
     //unsigned short label;
@@ -38,7 +38,7 @@ void initMatrixValuesRandomlyBetweenOneAndOne(struct Matrix *m);
 void addVectorToEachRow(struct Matrix *m, struct Matrix*v);
 
 //the total of all the values in the matrix
-float sum(struct Matrix *m);
+double sum(struct Matrix *m);
 
 struct Matrix *elementWiseMultiplication(struct Matrix *x, struct Matrix *y);
 
@@ -56,5 +56,9 @@ struct Matrix *concatenateMatricesRowWise(struct Matrix *x, struct Matrix *y, in
 void fillIn(struct Matrix *x, struct Matrix *y, int setCur);
 
 void freeMatrix(struct Matrix *m);
+
+
+struct Matrix *concatenateMatricesColWise(struct Matrix *x, struct Matrix *y);
+
 
 #endif

@@ -4,6 +4,9 @@
 #include "Image.h"
 #include "ImageLoader.h"
 #include "ConvLayer.h"
+#include "Layer.h"
+#include <Math.h>
+#include "ActivationFunctions.h"
 
 //#include "Layer.h"
 //#include "Vector.h"
@@ -12,19 +15,33 @@
 
 int main()
 {
-    /*
-    struct Matrix *inputs = newMatrix(3, 4);
-    initMatrixValuesRandomlyBetweenOneAndOne(inputs);
-    //printMatrix(inputs);
 
-    //number of output of test data = 4 rn
-    struct Layer *layer = newLayer(4, 5);
-    //printMatrix(layer->weights);
-    initMatrixWithOnes(layer->biases);
-    forward(layer, inputs);
-    //printMatrix(layer->outputs);
-    */
-    int batchSize = 100;
+
+    int batchSize = 1;
+    struct Image *images;
+    images = getNImages(batchSize);
+    for(int i = 0; i < batchSize; i++){
+        printImage(&images[i]);
+    }
+    //struct Matrix *o = getOneHotEncodingOfLabels(images, batchSize);
+    short *labels = getRawLabels(images, batchSize);
+    for(int i = 0; i < batchSize; i++){
+        printf("\n%d", labels[i]);
+    }
+
+    struct Matrix *soft = newMatrix(1, 3);
+    soft->mat[0][0] = 0.5;
+    soft->mat[0][1] = 0.1;
+    soft->mat[0][2] = 0.2;
+    
+    short label = 0;
+
+    printf("\n\n\n loss = %f\n\n", loss(soft, 0, label));
+
+
+
+    /*
+    int batchSize = 5;
     struct Image *images;
     images = getNImages(batchSize);
     for(int i = 0; i < batchSize; i++){
@@ -43,48 +60,34 @@ int main()
     forwardConvLayer(layer);
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     poolOutput(layer, 2);
-    flattenOutput(layer);
-    for(int image = 0; image < batchSize; image++){
-        printMatrix(layer->output[image][0]);
-    }
-    /*
+    
     struct ConvLayer *secondLayer = newConvLayer(4, 2, 1, layer->output, layer->inputSize, layer->outputSize);
     forwardConvLayer(secondLayer);
-    poolOutput(secondLayer, 2);
+    poolOutput(secondLayer, 4);
     flattenOutput(secondLayer);
     printf("\n\n printing output of convolution\n\n");
     //printMatrix(layer->output[0][0]);
     printf("\n width = %d", secondLayer->output[0][0]->width);
     printMatrix(secondLayer->output[0][0]);
     
+    secondLayer->output[0][0] = normalizeMatrixByRow(secondLayer->output[0][0]);
+
+
+
+    struct Layer *flayer = newLayer(getConvLayerOutput(secondLayer)->width, 8, 0);
+    forward(flayer, getConvLayerOutput(secondLayer));
+
+
+    struct Layer *outputLayer = newLayer(flayer->numberOfNeurons, 10, 1);
+    forward(outputLayer, flayer->outputs);
+
     */
+
     
-    //struct ConvLayer *layer = newConvLayer(4, 3, 1, )
     
    /////////////////////////////////////////////////////
+
     
-
-
-
-    /*struct Matrix *m = newMatrix(3, 3);
-    m->mat[0][0] = 4.8;
-    m->mat[0][1] = 1.21;
-    m->mat[0][2] = 2.385;
-
-    m->mat[1][0] = 8.9;
-    m->mat[1][1] = 1.81;
-    m->mat[1][2] = 0.2;
-
-    m->mat[2][0] = 1.41;
-    m->mat[2][1] = 1.051;
-    m->mat[2][2] = 0.026;
-    m = subtractByMaxRowWise(m);
-    m = exponentiateMatrix(m);
-    printMatrix(m);
-    m = normalizeMatrixByRow(m);
-    printMatrix(m);
-    printf("\n\n sum = %f\n", sum(m));
-    */
 
 
 

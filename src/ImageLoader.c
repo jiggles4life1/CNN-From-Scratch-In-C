@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "Image.h"
 #include "ImageLoader.h"
+#include "Matrix.h"
 
 unsigned char* readTrainingImagesIntoBuffer(){
     FILE *fileptr;
@@ -39,7 +40,7 @@ struct Image *getNImages(int n){
     //test opening file
     //FILE *images = fopen("/TrainingImages/train-images.idx3-ubyte", "r");
 
-
+    static int totalImagesRead = 0;
 
     char *buffer = readTrainingImagesIntoBuffer();
     char *labels = readTrainingLabelsIntoBuffer();
@@ -51,8 +52,8 @@ struct Image *getNImages(int n){
     imageArray = malloc(sizeof(struct Image) * n);
 
     //data start at 16 and 8 respectively, so init them there
-    int curImage = 16;
-    int curLabel = 8;
+    static int curImage = 16;
+    static int curLabel = 8;
     int arrCounter = 0;
     //struct Image *image = (struct Image*) malloc(sizeof(struct Image));
     
@@ -75,11 +76,14 @@ struct Image *getNImages(int n){
     }
     printf("\n\n DATA LOADED\n\n");
 
+
+    totalImagesRead += n;
     return imageArray;
 
 
 
 }
+
 
 struct Matrix ***convertImageBatchToConLayerFormat(struct Image *images, int batchSize){
     struct Matrix ***m = malloc(sizeof(struct Matrix*) * batchSize);
@@ -93,6 +97,29 @@ struct Matrix ***convertImageBatchToConLayerFormat(struct Image *images, int bat
     return m;
     
 
+}
+
+
+struct Matrix *getOneHotEncodingOfLabels(struct Image *images, int batchSize){
+    struct Matrix *m = newMatrix(batchSize, 10);
+    initMatrixWithZeros(m);
+
+    for(int i = 0; i < batchSize; i++){
+        m->mat[i][images[i].label] = (double) 1;
+    }
+
+    return m;
+
+}
+
+short *getRawLabels(struct Image *images, int batchSize){
+    //struct Matrix *m = newMatrix(1, batchSize);
+    short *labels = malloc(batchSize * sizeof(short));
+    for(int i = 0; i < batchSize; i++){
+        labels[i] = images[i].label;
+    }
+
+    return labels;
 }
 
 
