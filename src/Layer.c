@@ -1,6 +1,7 @@
 #include "Layer.h"
 #include "Matrix.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include "ActivationFunctions.h"
 
 struct Layer* newLayer(int numberOfInputs, int numberOfNuerons, int isOutputLayer){
@@ -67,4 +68,29 @@ void callActivationFunction(struct Layer *layer){
         activateEachNeuronReLU(layer);
     }
 
+}
+
+
+struct Matrix *calculateLoss(struct Layer *layer, struct Matrix *labels){
+    //first we need to clip the output
+    //we clip them by 1e-7
+    double min = 0.0000001;
+    printf("\n pre clip \n");
+    printMatrix(layer->outputs);
+    layer->outputs = clipMatrixValues(layer->outputs, min, 1-min);
+    printf("\npost clip\n");
+    printMatrix(layer->outputs);
+    int batchSize = labels->width;
+
+    struct Matrix *m = newMatrix(1, batchSize);
+
+    for(int i = 0; i < batchSize; i++){
+
+        double l = loss(layer->outputs, i, (short) labels->mat[0][i]);
+        m->mat[0][i] = l;
+
+
+    }
+
+    return m;
 }

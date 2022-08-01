@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdio.h>
 #include "Matrix.h"
 
 double ReLU(double x){
@@ -16,12 +17,14 @@ double exponentiation(double x){
 }
 
 double naturalLog(double x){
-    return (double) log(x);
+    double y = log(x);
+    return y;
 }
 
 
 double loss(struct Matrix *layerOutput, int imageNumber, short label){
     return -(naturalLog(layerOutput->mat[imageNumber][label]));
+
 }
 
 //NORMALIZES THE WHOLE MATRIX

@@ -9,6 +9,7 @@ struct Layer{
     struct Matrix *outputs;
 
 
+
     int numberOfNeurons;
 
     //we need to know this becuase output layer will use softmax
@@ -27,6 +28,7 @@ void forward(struct Layer *layer, struct Matrix *inputs);
 
 void callActivationFunction();
 
+//batch size will be the width of the labels matrix
 struct Matrix *calculateLoss(struct Layer *layer, struct Matrix *labels);
 
 

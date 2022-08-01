@@ -17,36 +17,31 @@ int main()
 {
 
 
-    int batchSize = 1;
+    int batchSize = 100;
     struct Image *images;
     images = getNImages(batchSize);
     for(int i = 0; i < batchSize; i++){
         printImage(&images[i]);
     }
     //struct Matrix *o = getOneHotEncodingOfLabels(images, batchSize);
-    short *labels = getRawLabels(images, batchSize);
-    for(int i = 0; i < batchSize; i++){
-        printf("\n%d", labels[i]);
-    }
-
-    struct Matrix *soft = newMatrix(1, 3);
-    soft->mat[0][0] = 0.5;
-    soft->mat[0][1] = 0.1;
-    soft->mat[0][2] = 0.2;
+    //struct Matrix *soft = newMatrix(1, 3);
+    //soft->mat[0][0] = 0.5;
+    //soft->mat[0][1] = 0.1;
+    //soft->mat[0][2] = 0.2;
     
-    short label = 0;
+    //short label = 0;
 
-    printf("\n\n\n loss = %f\n\n", loss(soft, 0, label));
+    //printf("\n\n\n loss = %f\n\n", loss(soft, 0, label));
 
 
 
-    /*
-    int batchSize = 5;
-    struct Image *images;
-    images = getNImages(batchSize);
-    for(int i = 0; i < batchSize; i++){
-        printImage(&(images[i]));
-    }
+    
+    //int batchSize = 5;
+    //struct Image *images;
+    //images = getNImages(batchSize);
+    //for(int i = 0; i < batchSize; i++){
+      //  printImage(&(images[i]));
+    //}
 
     struct Matrix ***input = convertImageBatchToConLayerFormat(images, batchSize);
     
@@ -81,7 +76,19 @@ int main()
     struct Layer *outputLayer = newLayer(flayer->numberOfNeurons, 10, 1);
     forward(outputLayer, flayer->outputs);
 
-    */
+    printMatrix(outputLayer->outputs);
+
+
+    printf("\n\n loss calculated\n");
+    short *labels = getRawLabels(images, batchSize);
+    struct Matrix *labelsMat = newMatrix(1, batchSize);
+    for(int i = 0; i < batchSize; i++){
+        printf("\n%d", labels[i]);
+        labelsMat->mat[0][i] = (double) labels[i];
+    }
+    struct Matrix *l = calculateLoss(outputLayer, labelsMat);
+    
+    printMatrix(l);
 
     
     

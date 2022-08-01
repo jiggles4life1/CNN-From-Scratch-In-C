@@ -60,5 +60,8 @@ void freeMatrix(struct Matrix *m);
 
 struct Matrix *concatenateMatricesColWise(struct Matrix *x, struct Matrix *y);
 
+struct Matrix *clipMatrixValues(struct Matrix *m, double min, double max);
+
+
 
 #endif

@@ -113,7 +113,6 @@ struct Matrix *getOneHotEncodingOfLabels(struct Image *images, int batchSize){
 }
 
 short *getRawLabels(struct Image *images, int batchSize){
-    //struct Matrix *m = newMatrix(1, batchSize);
     short *labels = malloc(batchSize * sizeof(short));
     for(int i = 0; i < batchSize; i++){
         labels[i] = images[i].label;

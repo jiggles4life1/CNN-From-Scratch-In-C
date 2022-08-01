@@ -362,3 +362,28 @@ struct Matrix *concatenateMatricesColWise(struct Matrix *x, struct Matrix *y){
     }
     return m;
 }
+
+
+struct Matrix *clipMatrixValues(struct Matrix *m, double min, double max){
+    struct Matrix *n = newMatrix(m->height, m->width);
+
+    for(int i = 0; i < n->height; i++){
+        for(int j = 0; j < n->width; j++){
+            double val;
+            if(m->mat[i][j] < min){
+                val = min;
+            }
+            else if(m->mat[i][j] > max){
+                val = max;
+            }
+            else{
+                val = m->mat[i][j];
+            }
+
+
+            n->mat[i][j] = val;
+        }
+    }
+
+    return n;
+}
