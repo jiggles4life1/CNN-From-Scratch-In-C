@@ -41,7 +41,7 @@ struct Matrix *convolution(struct Matrix *image, struct Matrix *filter, struct C
 
 struct Matrix *maxPool(struct Matrix *m, int poolSize);
 
-void forwardConvLayer(struct ConvLayer *layer);
+void forwardConvLayer(struct ConvLayer *layer, struct Matrix ***input);
 
 
 void flattenOutput(struct ConvLayer *layer);
@@ -49,5 +49,11 @@ void flattenOutput(struct ConvLayer *layer);
 void poolOutput(struct ConvLayer *layer, int poolSize);
 
 struct Matrix *getConvLayerOutput(struct ConvLayer *layer);
+
+void freeConvLayer(struct ConvLayer *layer);
+
+//void normalizeConvLayerOutput(struct ConvLayer *layer);
+void printConvLayerOutput(struct ConvLayer *layer);
+
 
 #endif

@@ -92,15 +92,33 @@ void initMatrixValuesRandomlyBetweenOneAndOne(struct Matrix *m){
 
 }
 
+void initMatrixValuesRandomlyBetweenZeroAndOne(struct Matrix *m){
+    static int i = 0;
 
-void transposeMatrix(struct Matrix *m){
+    srand(time(NULL) + i);
+    double x = ((double)rand()/(double)(RAND_MAX));
+    x -= 1;
     for(int i = 0; i < m->height; i++){
         for(int j = 0; j < m->width; j++){
-            int tmp = m->mat[i][j];
-            m->mat[i][j] = m->mat[j][i];
-            m->mat[j][i] = tmp;
+                double x = ((double)rand()/(double)(RAND_MAX)) - 0.5;
+                //x -= 1;
+                m->mat[i][j] = x;
         }
     }
+    i++;
+
+
+}
+
+struct Matrix *transposeMatrix(struct Matrix *m){
+    struct Matrix *n = newMatrix(m->width, m->height);
+
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            n->mat[j][i] = m->mat[i][j];
+        }
+    }
+    return n;
 }
 
 
@@ -310,7 +328,7 @@ void fillIn(struct Matrix *x, struct Matrix *y, int setCur){
 
 
 void freeMatrix(struct Matrix *m){
-    for(int i = 0; i < m->height; m++){
+    for(int i = 0; i < m->height; i++){
         free(m->mat[i]);
     }
     free(m->mat);
@@ -382,6 +400,96 @@ struct Matrix *clipMatrixValues(struct Matrix *m, double min, double max){
 
 
             n->mat[i][j] = val;
+        }
+    }
+
+    return n;
+}
+
+
+
+struct Matrix *copyMatrix(struct Matrix *m){
+    struct Matrix *n = newMatrix(m->height, m->width);
+
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            n->mat[i][j] = m->mat[i][j];
+        }
+    }
+
+    return n;
+}
+
+
+struct Matrix *multiplyByValue(struct Matrix *m, double value){
+    struct Matrix *n = newMatrix(m->height, m->width);
+
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            n->mat[i][j] = m->mat[i][j] * value;
+        }
+    }
+    return n;
+}
+
+
+struct Matrix *elementWiseSubtraction(struct Matrix *m, struct Matrix *n){
+    struct Matrix *x = newMatrix(m->height, m->width);
+
+    if((m->height != n->height) || (m->width != n->width)){
+        printf("\n\n shape error in elementWiseSubtraction\n\n");
+        return x;
+    }
+
+
+
+    for(int i =0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            x->mat[i][j] = m->mat[i][j] - n->mat[i][j];
+        }
+    }
+
+    return x;
+}
+
+
+struct Matrix *normalizeImageTo255(struct Matrix *m){
+    struct Matrix *n = newMatrix(m->height, m->width);
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            //we divide by 255 becuase thats the max value possible in the image
+            if(m->mat[i][j] == (double) 0){
+                n->mat[i][j] = (double) 0 - 0.5;
+            }
+            else{
+                n->mat[i][j] = m->mat[i][j] / 255;
+                n->mat[i][j] -= 0.5;
+            }
+        }
+    }
+    return n;
+}
+
+
+
+void transformImage(struct Matrix *m){
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            if (m->mat[i][j] != 0){
+                m->mat[i][j] = m->mat[i][j] / 255;
+            }
+            m->mat[i][j] = m->mat[i][j] - 0.5;
+        }
+    }
+}
+
+
+struct Matrix *divideMatrixByValue(struct Matrix *m, double value){
+    struct Matrix *n = newMatrix(m->height, m->width);
+
+    for(int i = 0; i < n->height; i++){
+        for(int j = 0; j < n->width; j++){
+            n->mat[i][j] = m->mat[i][j] / value;
         }
     }
 

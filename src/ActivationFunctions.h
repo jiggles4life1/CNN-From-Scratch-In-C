@@ -4,11 +4,16 @@
 //for the hidden layers of the network
 double ReLU(double x);
 
+double ReLUPrime(double x);
 
 double exponentiation(double x);
 
 double naturalLog(double x);
 
 double loss(struct Matrix *layerOutput, int imageNumber, short label);
+
+
+
+double sigmoid(double x);
 
 #endif

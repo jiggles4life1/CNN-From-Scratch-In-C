@@ -29,7 +29,7 @@ void setShape(struct Matrix *m, int height, int width);
 struct Matrix *muliplyMatrices(struct Matrix *m1, struct Matrix *m2);
 
 //transpose function
-void transposeMatrix(struct Matrix *m);
+struct Matrix *transposeMatrix(struct Matrix *m);
 
 //initalizes the values of the matrix with range [-1 : 1]
 void initMatrixValuesRandomlyBetweenOneAndOne(struct Matrix *m);
@@ -61,6 +61,20 @@ void freeMatrix(struct Matrix *m);
 struct Matrix *concatenateMatricesColWise(struct Matrix *x, struct Matrix *y);
 
 struct Matrix *clipMatrixValues(struct Matrix *m, double min, double max);
+
+struct Matrix *copyMatrix(struct Matrix *m);
+
+struct Matrix *multiplyByValue(struct Matrix *m, double value);
+
+struct Matrix *elementWiseSubtraction(struct Matrix *m, struct Matrix *n);
+void initMatrixValuesRandomlyBetweenZeroAndOne(struct Matrix *m);
+
+struct Matrix *normalizeImageTo255(struct Matrix *m);
+
+
+void transformImage(struct Matrix *m);
+
+struct Matrix *divideMatrixByValue(struct Matrix *m, double value);
 
 
 

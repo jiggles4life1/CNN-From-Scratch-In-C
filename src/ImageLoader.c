@@ -74,7 +74,7 @@ struct Image *getNImages(int n){
 
 
     }
-    printf("\n\n DATA LOADED\n\n");
+    //printf("\n\n DATA LOADED\n\n");
 
 
     totalImagesRead += n;
@@ -84,6 +84,19 @@ struct Image *getNImages(int n){
 
 }
 
+void freeImageBatch(struct Image *imageArray, struct Matrix ***convLayerInput, int batchSize, int mapsPerImage){
+    free (imageArray);
+
+    for(int i = 0; i < batchSize; i++){
+        for(int j = 0; j < mapsPerImage; j++){
+            freeMatrix(convLayerInput[i][j]);
+        }
+        free(convLayerInput[i]);
+
+    }
+    free(convLayerInput);
+}
+
 
 struct Matrix ***convertImageBatchToConLayerFormat(struct Image *images, int batchSize){
     struct Matrix ***m = malloc(sizeof(struct Matrix*) * batchSize);
@@ -91,13 +104,26 @@ struct Matrix ***convertImageBatchToConLayerFormat(struct Image *images, int bat
     for(int i = 0; i < batchSize; i++){
         m[i] = malloc(sizeof(struct Matrix*));
         m[i][0] = convertImageToMatrix(&images[i]);
-        
+        struct Matrix *tmp = normalizeImageTo255(m[i][0]);
+        freeMatrix(m[i][0]);
+        m[i][0] = tmp;
     }
 
     return m;
     
 
 }
+
+void freeConvLayerInputBatch(struct Matrix ***input, int batchSize){
+    for(int i = 0; i < batchSize; i++){
+        freeMatrix(input[i][0]);
+        free(input[i]);
+    }
+    free(input);
+}
+
+
+
 
 
 struct Matrix *getOneHotEncodingOfLabels(struct Image *images, int batchSize){
@@ -119,6 +145,10 @@ short *getRawLabels(struct Image *images, int batchSize){
     }
 
     return labels;
+}
+
+void freeRawLabels(short *labels){
+    free(labels);
 }
 
 
