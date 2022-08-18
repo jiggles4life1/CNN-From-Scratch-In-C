@@ -35,10 +35,8 @@ struct Layer* newLayer(int numberOfInputs, int numberOfNuerons, int isOutputLaye
 
 
 void forward(struct Layer *layer, struct Matrix *inputs){
-    //store inputs for back propogation later
     if(layer->hasBeenForwarded){
-        //printMatrix(layer->inputs); 
-        free(layer->outputs);
+        freeMatrix(layer->outputs);
         
     }
     layer->inputs = inputs;
@@ -46,16 +44,8 @@ void forward(struct Layer *layer, struct Matrix *inputs){
     
     layer->outputs = muliplyMatrices(inputs, layer->weights);
 
-    //printf("\n\n output after weights * inputs\n\n");
-    //printf("\n inputs width: %d", inputs->width);
-    //printf("\n inputs height: %d", inputs->height);
-    //printf("\n weights width: %d", layer->weights->width);
-    //printf("\n Weghts height: %d", layer->weights->height);
-    //printMatrix(layer->outputs);
     addVectorToEachRow(layer->outputs, layer->biases);
-    //layer->totals = copyMatrix(layer->outputs);
     callActivationFunction(layer);
-    //printf("\n matrix after activation function\n");
     layer->hasBeenForwarded = 1;
 }
 
@@ -75,12 +65,11 @@ void outputLayerSoftmaxActivation(struct Layer *layer){
         freeMatrix(layer->totals);
     }
     layer->totals = copyMatrix(layer->outputs);
-
     tmp = exponentiateMatrix(layer->outputs);
-    free(layer->outputs);
+    freeMatrix(layer->outputs);
     layer->outputs = tmp;
     tmp = normalizeMatrixByRow(layer->outputs);
-    free(layer->outputs);
+    freeMatrix(layer->outputs);
     layer->outputs = tmp;
 }
 
@@ -103,8 +92,9 @@ struct Matrix *calculateLoss(struct Layer *layer, struct Matrix *labels){
     //first we need to clip the output
     //we clip them by 1e-7
     double min = 0.0000001;
-
-    layer->outputs = clipMatrixValues(layer->outputs, min, 1-min);
+    struct Matrix *tmp = clipMatrixValues(layer->outputs, min, 1-min);
+    freeMatrix(layer->outputs);
+    layer->outputs = tmp;
 
     int batchSize = labels->width;
 
@@ -125,28 +115,6 @@ struct Matrix *calculateLoss(struct Layer *layer, struct Matrix *labels){
 
 struct Matrix *getSoftmaxGradient(struct Layer *layer, struct Matrix *labels,
                                   struct Matrix *loss, double learningRate){
-    //width of 10 becuase there are 10 classes for our dataset
-    //layer->outputs->height will just be the batch size
-    //struct Matrix *g = newMatrix(layer->outputs->height, layer->outputs->width);
-    //initMatrixWithZeros(g);
-
-    //d_out_d_t
-    /*struct Matrix *dt = newMatrix(layer->outputs->height, layer->outputs->width);
-    struct Matrix *dldt = newMatrix(dt->height, dt->width);
-
-
-    struct Matrix *dw = copyMatrix(layer->inputs);
-    struct Matrix *db = copyMatrix(layer->biases);
-    struct Matrix *di = copyMatrix(layer->weights);
-
-    struct Matrix *dldw = newMatrix(layer->weights->height, layer->weights->width);
-    struct Matrix *dldb = newMatrix(dldt->height, dldt->width);
-    struct Matrix *dldi = newMatrix(layer->inputs->height, layer->outputs->width);
-
-
-    struct Matrix *totals = copyMatrix(layer->totals);
-    totals = exponentiateMatrix (totals);
-    */
     
     int batchSize = labels->width;
 
@@ -180,13 +148,15 @@ struct Matrix *getSoftmaxGradient(struct Layer *layer, struct Matrix *labels,
     struct Matrix *dtdi = layer->weights;
 
     struct Matrix *dldt = multiplyByValue(dOutdt, gradient->mat[0][label]);
+    
+    struct Matrix *dtdwTransposed = transposeMatrix(dtdw);
+    struct Matrix *dldtTransposed = transposeMatrix(dldt);
 
-
-    struct Matrix *dldw = muliplyMatrices(transposeMatrix(dtdw), dldt);
+    struct Matrix *dldw = muliplyMatrices(dtdwTransposed, dldt);
 
     struct Matrix *dldb = multiplyByValue(dldt, dtdb);
 
-    struct Matrix *dldi = muliplyMatrices(dtdi, transposeMatrix(dldt));
+    struct Matrix *dldi = muliplyMatrices(dtdi, dldtTransposed);
 
 
 
@@ -209,9 +179,11 @@ struct Matrix *getSoftmaxGradient(struct Layer *layer, struct Matrix *labels,
     layer->biases = tmp;
 
 
-    //freeMatrix(dtdi);
+    freeMatrix(dldw);
+    //freeMatrix(dldi);
     freeMatrix(dldt);
-    //freeMatrix(dldw);
+    freeMatrix(dtdwTransposed);
+    freeMatrix(dldtTransposed);
     freeMatrix(dldb);
     freeMatrix(gradient);
     freeMatrix(totalsExponential);
@@ -219,93 +191,6 @@ struct Matrix *getSoftmaxGradient(struct Layer *layer, struct Matrix *labels,
     return dldi;
 
 
-
-    //printf("\n\n gradient:: \n\n");
-    //printMatrix(gradient);
-    //for(int i = 0; i <)
-    
-    /*for(int i = 0; i < labels->width; i++){
-
-        
-        int label = (int) labels->mat[0][i];
-
-        //get the sum of the layers input for this image
-        double s = 0;
-        for(int k = 0; k < totals->width; k++){
-            s += totals->mat[i][k];
-        }
-
-
-        for(int k = 0; k < totals->width; k++){
-            if(k != label){
-                dt->mat[i][k] = (-totals->mat[i][label] * totals->mat[i][k]) / (s * s);
-            }
-            else{
-                dt->mat[i][k] = ((totals->mat[i][k]) * (s - totals->mat[i][k])) / (s * s);
-            }
-        }
-
-
-        //gradient = -1 / out_{i}
-        //i guess???
-        //also remember that every other value except for the correct class' spot
-        //is going to be 0, thus why we can just calculate the gradient for g[i][label]
-        g->mat[i][label] = -1 / (layer->outputs->mat[i][label]);
-
-        //this is the gradients of loss against totals
-        //for(int i = 0; i < dt->height; i++){
-            for(int j = 0; j < dt->width; j++){
-                dldt->mat[i][j] = dt->mat[i][j] * g->mat[i][label];
-            }
-        //}
-
-
-        //now we calculate weights gradient, biases gradient
-
-        //I believe dt is the input gradient.
-
-
-    }
-    */
-
-    /*dw = transposeMatrix(dw);
-
-    dldw = muliplyMatrices(dw, dldt);
-
-
-    dldb = copyMatrix(dldt);
-
-    //di = transposeMatrix(di);
-    dldt = transposeMatrix(dldt);
-
-
-
-    dldi = muliplyMatrices(di, dldt);
-
-
-
-
-
-    dldw = multiplyByValue(dldw, learningRate);
-    dldb = multiplyByValue(dldb, learningRate);
-
-
-
-    layer->weights = elementWiseSubtraction(layer->weights, dldw);
-    layer->biases = elementWiseSubtraction(layer->biases, dldb);
-
-    */
-
-    //printf("\n new weights \n");
-    //printMatrix(layer->weights);
-    //printf("\n new biases \n");
-    //printMatrix(layer->biases);
-
-
-
-
-
-    //return gradient;
 
 }
 
@@ -341,4 +226,13 @@ int getModelPrediction(struct Layer *layer){
     }
 
     return maxAt;
+}
+
+
+void freeLayer(struct Layer *layer){
+    freeMatrix(layer->weights);
+    freeMatrix(layer->biases);
+    //freeMatrix(layer->inputs);
+    freeMatrix(layer->totals);
+    freeMatrix(layer->outputs);
 }

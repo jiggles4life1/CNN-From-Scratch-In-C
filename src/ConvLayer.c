@@ -6,7 +6,7 @@
 
 
 struct ConvLayer *newConvLayer(int numberOfFilters, int filterSize, int stride, 
-    struct Matrix ***images, int inputSize, int numberOfMapsPerImage){
+    struct Matrix ***images, int inputSize, int numberOfMapsPerImage, int poolSize){
     //get a new conv layer
     struct ConvLayer *layer = (struct ConvLayer*) malloc(sizeof(struct ConvLayer));
     layer->filterSize = filterSize;
@@ -21,6 +21,14 @@ struct ConvLayer *newConvLayer(int numberOfFilters, int filterSize, int stride,
     //This is the output size per image. The batch size (input size) is constant
     layer->outputSize = (layer->numberOfMapsPerImage * layer->numberOfFilters);
     layer->output = (struct Matrix***) malloc(sizeof(struct Matrix*) * inputSize);
+
+    //initialize a dumby matrix to free when flatten is called
+    layer->flattenedOutput = newMatrix(1, 1);
+
+    layer->poolSize = poolSize;
+
+    
+
 
 
 
@@ -66,7 +74,7 @@ void freeConvLayer(struct ConvLayer *layer){
         }
         free(layer->output[i]);
     }
-
+    freeMatrix(layer->flattenedOutput);
     free(layer);
 
     //TODO free input?
@@ -142,38 +150,7 @@ struct Matrix *convolution(struct Matrix *image, struct Matrix *filter, struct C
     return m;
 }
 
-struct Matrix *maxPool(struct Matrix *m, int poolSize){
-    if(m->height % poolSize != 0){
-        printf("\n\n\nERROR: incompatible pooling and matrix Height\n\n");
-        printf("\n pool size = %d", poolSize);
-        printf("\n Matrix height = %d", m->height);
-        return NULL;
-    }
 
-    if(m->width % poolSize != 0){
-        printf("\n\n\nERROR: incompatible pooling and matrix Width\n\n");
-        printf("\n pool size = %d", poolSize);
-        printf("\n Matrix width = %d", m->width);
-        return NULL;
-    }
-
-    struct Matrix *newMat = newMatrix(m->height/poolSize, m->width/poolSize);
-
-    for(int i = 0; i < newMat->height; i++){
-        for(int j = 0; j < newMat->width; j++){
-            float max = -FLT_MAX;
-            for(int x = 0; x < poolSize; x++){
-                for(int y = 0; y < poolSize; y++){
-                    if (m->mat[(i * poolSize)+x][(j * poolSize)+y] > max){
-                        max = m->mat[(i * poolSize)+x][(j * poolSize)+y];
-                    }
-                }
-            }
-            newMat->mat[i][j] = max;
-        }
-    }
-    return newMat;
-}
 
 
 void printConvLayerOutput(struct ConvLayer *layer){
@@ -217,51 +194,49 @@ void forwardConvLayer(struct ConvLayer *layer, struct Matrix ***input){
             }
         }
     }
-}
-
-void flattenOutput(struct ConvLayer *layer){
-
-    //image is the current image we are iterating over
-    //loop through each image in the batch
-    struct Matrix *finalOutput = newMatrix(1, 1);
-    for(int image = 0; image < layer->inputSize; image++){
-        struct Matrix *flattenedMatrix = newMatrix(1, 1);
-        struct Matrix *flatMap = newMatrix(1, 1);
-        for(int map = 0; map < layer->outputSize; map++){
-            freeMatrix(flatMap);
-            flatMap = flattenMatrix(layer->output[image][map]);
-
-            struct Matrix *tmp = concatenateMatricesRowWise(flattenedMatrix, flatMap, 0);
-            freeMatrix(flattenedMatrix);
-            flattenedMatrix = tmp;
-            //flattenedMatrix = concatenateMatricesRowWise(flattenedMatrix, flatMap, 0);
-
-        }
-        struct Matrix *tmp = concatenateMatricesColWise(finalOutput, flattenedMatrix);
-        freeMatrix(finalOutput);
-        finalOutput = tmp;
-        freeMatrix(flatMap);
-        freeMatrix(flattenedMatrix);
-        //layer->output[image][0] = flattenedMatrix;
-    }
-    layer->output[0][0] = finalOutput;
-
-    layer->outputSize = 1;
+    layer->prePoolHeight = layer->output[0][0]->height;
+    layer->prePoolWidth = layer->output[0][0]->width;
 }
 
 
-void poolOutput(struct ConvLayer *layer, int poolSize){
-    for(int image = 0; image < layer->inputSize; image++){
-        for(int map = 0; map < layer->outputSize; map++){
-            struct Matrix *tmp = maxPool(layer->output[image][map], poolSize);
-            freeMatrix(layer->output[image][map]);
-            layer->output[image][map] = tmp;
-        }
-    }
-}
+
+
 
 struct Matrix *getConvLayerOutput(struct ConvLayer *layer){
-    return layer->output[0][0];
+    return layer->flattenedOutput;
 }
+
+
+struct Matrix backPropMaxPool(struct ConvLayer *layer, struct Matrix *gradient){
+    int h = layer->output[0][0]->height;
+    int w = layer->output[0][0]->width;
+    int f = layer->numberOfFilters * layer->numberOfMapsPerImage;
+    int batchSize = layer->inputSize;
+
+    for(int image = 0; image < batchSize; image++){
+        for(int map = 0; map < layer->outputSize; map++){
+
+            for(int i = 0; i < h; i++){
+                for(int j = 0; j < w; j++){
+                    float max = -FLT_MAX;
+                    int mi = -1;
+                    int mj = -1;
+                    for(int x = 0; x < layer->poolSize; x++){
+                        for(int y = 0; y < layer->poolSize; y++){
+                            if (layer->output[image][map]->mat[(i * layer->poolSize)+x][(j * layer->poolSize)+y] > max){
+                                max =layer->output[image][map] ->mat[(i * layer->poolSize)+x][(j * layer->poolSize)+y];
+                                mi = (i * layer->poolSize) + x;
+                                mj = (j * layer->poolSize) + y;
+                            }
+                        }
+                    }
+                    //g[image][map]->mat[mi][mj] = 
+                }
+            }
+        }
+    }
+}
+
+
 
 

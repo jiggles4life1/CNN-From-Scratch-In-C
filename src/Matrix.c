@@ -129,6 +129,9 @@ void setShape(struct Matrix *m, int height, int width){
 
 
 struct Matrix* newMatrix(int height, int width){
+    static int calls = 0;
+    calls++;
+    //printf("\nMatrices allocated: %d", calls);
     struct Matrix *m = malloc(sizeof(struct Matrix));
     m->height = height;
     m->width = width;
@@ -328,6 +331,9 @@ void fillIn(struct Matrix *x, struct Matrix *y, int setCur){
 
 
 void freeMatrix(struct Matrix *m){
+    static int calls = 0;
+    calls++;
+    //printf("\nmatrices Deallocated: %d", calls);
     for(int i = 0; i < m->height; i++){
         free(m->mat[i]);
     }

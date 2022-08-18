@@ -7,6 +7,7 @@
 #include "Layer.h"
 #include <Math.h>
 #include "ActivationFunctions.h"
+#include "MaxPool.h"
 
 //#include "Layer.h"
 //#include "Vector.h"
@@ -43,205 +44,66 @@ int main()
     struct Matrix ***input = convertImageBatchToConLayerFormat(images, batchSize);
 
 
-    struct ConvLayer *layer = newConvLayer(8, 3, 1, input, batchSize, 1);
-
-    //printf("\n\n printing conv layer\n\n");
-    //printConvLayer(layer);
+    struct ConvLayer *layer = newConvLayer(8, 3, 1, input, batchSize, 1, 2);
 
     forwardConvLayer(layer, input);
-    poolOutput(layer, 2);
+    printf("\n\n conv layer forwarded\n\n");
+    //poolOutput(layer, layer->poolSize);
+    struct MaxPool *poolLayer = newMaxPool(layer);
+    printf("\n\n new pool layer created\n\n");
     //printConvLayerOutput(layer);
-   
-    flattenOutput(layer);
-
-    //printMatrix(layer->output[0][0]);
-    //printf("\n flattened width = %d", layer->output[0][0]->width);
-    
-    //since we normalize at start we dont need to here? 
-    //secondLayer->output[0][0] = normalizeMatrix(secondLayer->output[0][0]);
-
-    struct Layer *outputLayer = newLayer(getConvLayerOutput(layer)->width, 10, 1);
-    forward(outputLayer, getConvLayerOutput(layer));
-
-
-    //during the seconds pass we have to free the labels ptr before
-    //using it again 
-    short *labels = getRawLabels(images, batchSize);
-    //same goes for labelsMat
-    struct Matrix *labelsMat = newMatrix(1, batchSize);
-    for(int i = 0; i < batchSize; i++){
-        labelsMat->mat[0][i] = (double) labels[i];
-    }
-    
-    //same goes for here during seconds pass
-    struct Matrix *l = calculateLoss(outputLayer, labelsMat);
+    pool(poolLayer, 2, layer->output);
+    printf("\n\n pool layer forwarded\n\n");
+    //flattenOutput(layer);
+    flattenOutputMaxPool(poolLayer);
+    printf("\n\n output of pool layer flattened\n\n");
+    //printMatrix(poolLayer->output[0][0]);
+    //printMatrix(layer->flattenedOutput);
+    //printMatrix(poolLayer->flattenedOutput);
+    //printf("\n pool width = %d\n", poolLayer->flattenedOutput->width);
+    struct Layer *outputLayer = newLayer(getMaxPoolOutput(poolLayer)->width, 10, 1);
+    printf("\n new output layer initialized\n");
+    forward(outputLayer, getMaxPoolOutput(poolLayer));
+    printf("\n\n output layer forwarded\n\n");
+    //printMatrix(outputLayer->outputs);
     
 
-
-    
-    //backProp(outputLayer, labelsMat, learningRate, l);
-
-    printf("\n layer 2 weights \n");
-    //printMatrix(outputLayer->weights);
-    printf("\n layer 2 biases \n");
-    //printMatrix(outputLayer->biases);
-    printf("\n layer 2 output \n");
-    printMatrix(outputLayer->outputs);
-
-
-
-    printf("\n\n\n loss = ");
-    printMatrix(l);
-
-
-    freeMatrix(backProp(outputLayer, labelsMat, learningRate, l));
-     //printf("\nback prop is crashing\n");
-
-   /////////////////////////////////////////////////////
-   
-    
-    //struct Matrix *input = flattenMatrix(normalizeImageTo255(convertImageToMatrix(&images[0])));
-    /*
-    struct Matrix *input = convertImageToMatrix(&images[0]);
-    input = normalizeMatrix(input);
-    input = flattenMatrix(input);
-    struct Layer *fLayer = newLayer(input->width, 8, 0);
-    forward(fLayer, input);
-    struct Layer *outputLayer = newLayer(fLayer->numberOfNeurons, 10, 1);
-    forward(outputLayer, fLayer->outputs);
 
     short *labels = getRawLabels(images, batchSize);
     struct Matrix *labelsMat = newMatrix(1, batchSize);
     for(int i = 0; i < batchSize; i++){
         labelsMat->mat[0][i] = (double) labels[i];
     }
+    
     struct Matrix *l = calculateLoss(outputLayer, labelsMat);
-    printf("\n\n\n loss = ");
+
+
+
+    //printf("\n\n\n loss = ");
+    //printMatrix(l);  
     printMatrix(outputLayer->outputs);
-    printMatrix(l);
 
+    struct Matrix *gradient =(backProp(outputLayer, labelsMat, learningRate, l));
+    struct Matrix ***bg = backpropMaxPool(poolLayer, gradient);
+    printf("\n\n oh wow succesffuly ran\n\n");
 
-    printf("\n layer 1 weights \n");
-    printMatrix(fLayer->weights);
-    printf("\n layer 1 biases \n");
-    printMatrix(fLayer->biases);
-    printf("\n layer 1 output \n");
-    printMatrix(fLayer->outputs);
-
-    printf("\n layer 2 weights \n");
-    printMatrix(outputLayer->weights);
-    printf("\n layer 2 biases \n");
-    printMatrix(outputLayer->biases);
-    printf("\n layer 2 output \n");
-    printMatrix(outputLayer->outputs);
+    printMatrix(bg[0][0]);
+    printMatrix(poolLayer->input[0][0]);
     
+    freeMatrix(gradient);
 
-    //backProp(outputLayer, labelsMat, learningRate, l);
-
-    int i = 0; 
-    double lossOne = 0;
-    double lossTwo = 0;
-    double lossThree = 0;
 
     
 
+
+   //------------------------------------------------------
     
-    while (i < 500){
-        images = getNImages(batchSize);
-        for(int i = 0; i < batchSize; i++){
-            //printImage(&images[i]);
-        }
-
-        struct Matrix *input = convertImageToMatrix(&images[0]);
-        input = normalizeImageTo255(input);
-        input = flattenMatrix(input);
-        forward(fLayer, input);
-        forward(outputLayer, fLayer->outputs);
-        labels = getRawLabels(images, batchSize);
-        struct Matrix *labelsMat = newMatrix(1, batchSize);
-        for(int i = 0; i < batchSize; i++){
-            labelsMat->mat[0][i] = (double) labels[i];
-        }
-        l = calculateLoss(outputLayer, labelsMat);
-        //printf("\n\n\n loss = ");
-        //printMatrix(outputLayer->outputs);
-        //printMatrix(l);
-
-        backProp(outputLayer, labelsMat, learningRate, l);
-
-        //printf("\n\n iteration %d", i);
-        lossOne += l->mat[0][0];
-        i++;
-
-        if(i % 100 == 0){
-            printf("\n = loss avg = %f", lossOne / 100);
-            lossOne = 0;
-        }
-        
-    }
-
-    */
-    
-    /*
-    int i = 0;
-    while(i < 2000){
-        //printf("\n starting loop\n");
-        free(images);
-        //printf("\n images freed \n");
-        images=getNImages(batchSize);
-        printImage(&images[0]);
-        freeConvLayerInputBatch(input, batchSize);
-        //printf("\n conv layer batch input freed \n");
-        input = convertImageBatchToConLayerFormat(images, batchSize);
-        
-        //struct Matrix *im = flattenMatrix(input[0][0]);
-        
-        forwardConvLayer(layer, input);
-
-        poolOutput(layer, 2);
-
-        forwardConvLayer(secondLayer, layer->output);
-
-        poolOutput(secondLayer, 4);
-        
-        flattenOutput(secondLayer);
-
-        //secondLayer->output[0][0] = normalizeMatrixByRow(secondLayer->output[0][0]);
-        //printMatrix(getConvLayerOutput(secondLayer));
-        forward(fLayer, getConvLayerOutput(secondLayer));
-
-        forward(outputLayer, fLayer->outputs);
-
-        //free the raw labels array
-        free(labels);
-        labels = getRawLabels(images, batchSize);
-        for(int i = 0; i < batchSize; i++){
-            labelsMat->mat[0][i] = (double) labels[i];
-        }
-        //free the loss matrix
-        freeMatrix(l);
-
-        l = calculateLoss(outputLayer, labelsMat);
-        printMatrix(outputLayer->outputs);
-        printf("\n loss = \n");
-        printMatrix(l);
-        backProp(outputLayer, labelsMat, learningRate, l);
-
-        printf("\n\n i = %d\n\n", i);
-        i++;
-        
-
-    }
-
-    printMatrix(outputLayer->weights);
-    printMatrix(outputLayer->biases);
-
-    */
     int accuracy = 0;
     double avgLoss = 0.0;
 
     int i = 1;
-    while (i < 500){
+    /*
+    while (i < 300){
         free(images);
         images=getNImages(batchSize);
         //printImage(&images[0]);
@@ -250,10 +112,13 @@ int main()
         input = convertImageBatchToConLayerFormat(images, batchSize);
 
         forwardConvLayer(layer, input);
-        poolOutput(layer, 2);
-        flattenOutput(layer);
-        forward(outputLayer, getConvLayerOutput(layer));
-
+        pool(poolLayer, 2, layer->output);
+        flattenOutputMaxPool(poolLayer);
+        //poolOutput(layer, layer->poolSize);
+        
+        //flattenOutput(layer);
+        forward(outputLayer, getMaxPoolOutput(poolLayer));
+        
         freeMatrix(l);
 
         free(labels);
@@ -274,7 +139,7 @@ int main()
         avgLoss += l->mat[0][0];
 
 
-        backProp(outputLayer, labelsMat, learningRate, l);
+        freeMatrix(backProp(outputLayer, labelsMat, learningRate, l));
 
         //printf("\n\n i = %d\n\n", i);
 
@@ -286,10 +151,24 @@ int main()
             accuracy = 0;
             avgLoss = 0;
         }
+
+        
         i++;
-
-
+        //printf("\n %d", i);
+        
     }
+    */
+    
+    
+    
+    freeConvLayer(layer);
+    freeConvLayerInputBatch(input, batchSize);
+    freeLayer(outputLayer);
+    freeMatrix(l);
+    freeMatrix(labelsMat);
+    //freeLayer(outputLayer);
+
+
     
 
 

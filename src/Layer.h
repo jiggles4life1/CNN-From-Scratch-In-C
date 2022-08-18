@@ -48,5 +48,7 @@ struct Matrix *backProp(struct Layer *layer, struct Matrix *labels, double learn
 //will get the index of the highest probably guess from the network
 int getModelPrediction(struct Layer *layer);
 
+void freeLayer(struct Layer *layer);
+
 
 #endif
