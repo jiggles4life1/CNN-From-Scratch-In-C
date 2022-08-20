@@ -194,9 +194,34 @@ struct Matrix ***backpropMaxPool(struct MaxPool *layer, struct Matrix *gradeint)
             }
         }
     }
+    freeUnflattenedGradient(layer, g);
+
     return bg;
 
 
 
+
+
+}
+
+
+void freeMaxPoolLayer(struct MaxPool *layer){
+    freeMatrix(layer->flattenedOutput);
+    //pool->output = (struct Matrix***) malloc(sizeof(struct Matrix*) * pool->inputSize);
+    for(int i = 0; i < layer->inputSize; i++){
+        //pool->output[i] = (struct Matrix**) malloc(sizeof(struct Matrix*) * layer->outputSize);
+        for(int j = 0; j < layer->outputSize; j++){
+            //initialize them so errors aren't thrown when they are freed :)
+            //pool->output[i][j] = newMatrix(1, 1);
+            freeMatrix(layer->output[i][j]);
+        }
+        free(layer->output[i]);
+    }
+    free(layer->output);
+    free(layer);
+}
+
+
+void freeBackpropOutput(struct MaxPool *layer, struct Matrix *gradients){
 
 }

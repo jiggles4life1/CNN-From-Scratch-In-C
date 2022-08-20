@@ -30,5 +30,9 @@ void flattenOutputMaxPool(struct MaxPool *layer);
 
 struct Matrix ***backpropMaxPool(struct MaxPool *layer, struct Matrix *gradeint);
 
+void freeMaxPoolLayer(struct MaxPool *layer);
+
+void freeBackpropOutput(struct MaxPool *layer, struct Matrix *gradients);
+
 //struct Matrix backPropMaxPool(struct ConvLayer *layer, struct Matrix *gradient);
 
