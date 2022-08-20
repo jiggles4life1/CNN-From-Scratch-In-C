@@ -187,9 +187,6 @@ struct Matrix ***backpropMaxPool(struct MaxPool *layer, struct Matrix *gradeint)
                             }
                         }
                     }
-                    printf("\n\n pre assignemnt \n\n");
-                    printf("\n mj = %d\n", mj);
-                    printf("\n mi = %d\n", mi);
                     //bg[image][map]->mat[mi][mj] = g[image][map]->mat[mi][mj];
                     bg[image][map]->mat[mi][mj] = gradeint->mat[cur][0];
                     cur++;

@@ -71,6 +71,7 @@ void printConvLayerOutput(struct ConvLayer *layer);
 //void freeUnflattenedGradient(struct ConvLayer *layer, struct Matrix ***g);
 
 //struct Matrix backPropMaxPool(struct ConvLayer *layer, struct Matrix *gradient);
+struct Matrix ***backpropConvLayer(struct ConvLayer *layer, struct Matrix ***gradient, double learningRate);
 
 
 

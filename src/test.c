@@ -85,10 +85,13 @@ int main()
 
     struct Matrix *gradient =(backProp(outputLayer, labelsMat, learningRate, l));
     struct Matrix ***bg = backpropMaxPool(poolLayer, gradient);
+    struct Matrix ***finalBg= backpropConvLayer(layer, bg, learningRate);
+    
     printf("\n\n oh wow succesffuly ran\n\n");
 
-    printMatrix(bg[0][0]);
-    printMatrix(poolLayer->input[0][0]);
+    //printMatrix(bg[0][0]);
+
+    //printMatrix(poolLayer->input[0][0]);
     
     freeMatrix(gradient);
 
@@ -102,8 +105,8 @@ int main()
     double avgLoss = 0.0;
 
     int i = 1;
-    /*
-    while (i < 300){
+    
+    while (i < 1000){
         free(images);
         images=getNImages(batchSize);
         //printImage(&images[0]);
@@ -139,7 +142,9 @@ int main()
         avgLoss += l->mat[0][0];
 
 
-        freeMatrix(backProp(outputLayer, labelsMat, learningRate, l));
+        struct Matrix *g  = backProp(outputLayer, labelsMat, learningRate, l);
+        struct Matrix ***mpg = backpropMaxPool(poolLayer, g);
+        struct Matrix ***clg = backpropConvLayer(layer, mpg, learningRate);
 
         //printf("\n\n i = %d\n\n", i);
 
@@ -157,7 +162,7 @@ int main()
         //printf("\n %d", i);
         
     }
-    */
+    
     
     
     

@@ -207,34 +207,53 @@ struct Matrix *getConvLayerOutput(struct ConvLayer *layer){
 }
 
 
-struct Matrix backPropMaxPool(struct ConvLayer *layer, struct Matrix *gradient){
-    int h = layer->output[0][0]->height;
-    int w = layer->output[0][0]->width;
-    int f = layer->numberOfFilters * layer->numberOfMapsPerImage;
-    int batchSize = layer->inputSize;
+struct Matrix ***backpropConvLayer(struct ConvLayer *layer, struct Matrix ***gradient, double learningRate){
+    //initialize a gradient for the filters
+    struct Matrix **dldf = malloc(sizeof(struct Matrix*) * layer->numberOfFilters);
+    //initalize each of the filter gradients with zeros
+    for(int i = 0; i < layer->numberOfFilters; i++){
+        dldf[i] = newMatrix(layer->filterSize, layer->filterSize);
+        initMatrixWithZeros(dldf[i]);
+    }
 
-    for(int image = 0; image < batchSize; image++){
-        for(int map = 0; map < layer->outputSize; map++){
 
-            for(int i = 0; i < h; i++){
-                for(int j = 0; j < w; j++){
-                    float max = -FLT_MAX;
-                    int mi = -1;
-                    int mj = -1;
-                    for(int x = 0; x < layer->poolSize; x++){
-                        for(int y = 0; y < layer->poolSize; y++){
-                            if (layer->output[image][map]->mat[(i * layer->poolSize)+x][(j * layer->poolSize)+y] > max){
-                                max =layer->output[image][map] ->mat[(i * layer->poolSize)+x][(j * layer->poolSize)+y];
-                                mi = (i * layer->poolSize) + x;
-                                mj = (j * layer->poolSize) + y;
+
+    //THIS LOOPS THROUGH THE INPUT NOT THE OUTPUT
+    for(int image = 0; image < layer->inputSize; image++){
+        for(int map = 0; map < layer->numberOfMapsPerImage; map++){
+            //now we loop through the possible regions of each input with respect
+            //to the size of the filters
+            for(int i = 0; i < layer->input[image][map]->height - layer->filterSize+1; i++){
+                for(int j = 0; j < layer->input[image][map]->width - layer->filterSize+1; j++){
+                    //loop through each filter
+                    for(int f = 0; f < layer->numberOfFilters; f++){
+                        //now loop through the filter values
+                        for(int x = 0; x < layer->filterSize; x++){
+                            for(int y = 0; y < layer->filterSize; y++){
+                                dldf[f]->mat[x][y] += gradient[image][f]->mat[i][j] * layer->input[image][map]->mat[i+x][y+j];
                             }
                         }
                     }
-                    //g[image][map]->mat[mi][mj] = 
+
                 }
             }
         }
     }
+
+    //if we are averaging the loss then i think we do something with the filters here before * learningRate
+    for(int f = 0; f < layer->numberOfFilters; f++){
+        //printf("\n DLDF \n");
+        //printMatrix(dldf[f]);
+        struct Matrix *tmp = multiplyByValue(dldf[f], learningRate);
+        freeMatrix(dldf[f]);
+        dldf[f] = tmp;
+        tmp = elementWiseSubtraction(layer->filters[f], dldf[f]);
+        freeMatrix(layer->filters[f]);
+        layer->filters[f] = tmp;
+        freeMatrix(dldf[f]);
+
+    }
+    return gradient;
 }
 
 
