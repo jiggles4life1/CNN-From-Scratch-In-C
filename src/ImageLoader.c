@@ -78,6 +78,8 @@ struct Image *getNImages(int n){
 
 
     totalImagesRead += n;
+    free(buffer);
+    free(labels);
     return imageArray;
 
 

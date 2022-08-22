@@ -18,7 +18,7 @@
 
 int main()
 {
-    double learningRate = 0.05;
+    double learningRate = 0.001;
 
     int batchSize = 1;
     
@@ -110,20 +110,17 @@ int main()
 
     int i = 1;
     
-    while (i < 100){
+    while (i < 60000){
         free(images);
         images=getNImages(batchSize);
         //printImage(&images[0]);
         freeConvLayerInputBatch(input, batchSize);
         //printf("\n conv layer batch input freed \n");
         input = convertImageBatchToConLayerFormat(images, batchSize);
-
         forwardConvLayer(layer, input);
         pool(poolLayer, 2, layer->output);
         flattenOutputMaxPool(poolLayer);
-        //poolOutput(layer, layer->poolSize);
         
-        //flattenOutput(layer);
         forward(outputLayer, getMaxPoolOutput(poolLayer));
         
         freeMatrix(l);
@@ -133,7 +130,6 @@ int main()
         for(int i = 0; i < batchSize; i++){
             labelsMat->mat[0][i] = (double) labels[i];
         }
-
         l = calculateLoss(outputLayer, labelsMat);
         //printMatrix(outputLayer->outputs);
         //printf("\n loss = \n");
@@ -145,7 +141,6 @@ int main()
         }
         avgLoss += l->mat[0][0];
 
-
         struct Matrix *g  = backProp(outputLayer, labelsMat, learningRate, l);
         struct Matrix ***mpg = backpropMaxPool(poolLayer, g);
         struct Matrix ***clg = backpropConvLayer(layer, mpg, learningRate);
@@ -156,6 +151,7 @@ int main()
         //printf("\n\n i = %d\n\n", i);
 
         if (i % 100 == 0){
+            printf("\ni = %d", i);
             printf("\n\n ------ Past 100 Steps ------ \n\n");
             printf("\nAccuracy = %d%c\n", accuracy, '%');
             avgLoss = avgLoss / 100;
@@ -169,6 +165,7 @@ int main()
         //printf("\n %d", i);
         
     }
+    printf("\n\n we outside the fucken loop \n\n");
     
     
     
