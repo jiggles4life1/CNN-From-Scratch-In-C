@@ -76,6 +76,8 @@ void transformImage(struct Matrix *m);
 
 struct Matrix *divideMatrixByValue(struct Matrix *m, double value);
 
+double getAverageOfMatrix(struct Matrix *m);
+
 
 
 #endif

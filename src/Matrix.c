@@ -501,3 +501,18 @@ struct Matrix *divideMatrixByValue(struct Matrix *m, double value){
 
     return n;
 }
+
+
+double getAverageOfMatrix(struct Matrix *m){
+    double numberOfValues = m->height * m->width;
+
+    double total = 0.0;
+
+    for(int i = 0; i < m->height; i++){
+        for(int j = 0; j < m->width; j++){
+            total += m->mat[i][j];
+        }
+    }
+
+    return total / numberOfValues;
+}

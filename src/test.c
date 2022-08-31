@@ -81,7 +81,7 @@ int main()
 
     //printf("\n\n\n loss = ");
     //printMatrix(l);  
-    printMatrix(outputLayer->outputs);
+    //printMatrix(outputLayer->outputs);
 
     struct Matrix *gradient =(backProp(outputLayer, labelsMat, learningRate, l));
     
